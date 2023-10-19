@@ -177,8 +177,21 @@ def get_json_data(path):
     # return jsonify(data)
     return data
 
-def create_object (config, members, member_ids, path):
+def create_object (config, members, member_ids, path, agent = None):
     # For POST Singleton API:
+
+    if agent is not None:
+        # This means this object is being created in response to a new object being advertised by an agent
+        # We mark the boject as belonging to an agent through the oem field.
+        oem = {
+            "@odata.type": "#SunfishExtensions.v1_0_0.ResourceExtensions",
+            "ManagingAgent": {
+                "@odata.id": agent
+            }
+        }
+        if "oem" not in config:
+            config["oem"] = {}
+        config["oem"]["Sunfish_RM"] = oem
 
     members.append(config)
     member_ids.append({'@odata.id': config['@odata.id']})
