@@ -178,7 +178,7 @@ class ComponentIntegrityAPI(Resource):
 		if code == 200:
 			path = create_path(self.root, 'ComponentIntegrity/{0}').format(ComponentIntegrityId)
 			base_path = create_path(self.root, 'ComponentIntegrity')
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

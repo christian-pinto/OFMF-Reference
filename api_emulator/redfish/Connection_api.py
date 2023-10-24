@@ -133,8 +133,8 @@ class ConnectionAPI(Resource):
 			if not os.path.exists(collection_path):
 				ConnectionCollectionAPI.post(self, FabricId)
 
-			if ConnectionId in members:
-				resp = 404
+			if ConnectionId in member_ids:
+				resp = "Element Id already existing", 404
 				return resp
 			try:
 				logging.debug("ConnectionAPI POST - request payload")
@@ -197,6 +197,9 @@ class ConnectionAPI(Resource):
 		logging.info('Connection delete called')
 		msg, code = check_authentication(self.auth)
 
+		if ConnectionId not in member_ids:
+			return "Element not present.", 404
+
 		if code == 200:
 			agent, response = agents_management.forwardToAgentIfManaged("DELETE", request.path)
 			if agent is not None and response[1] != 200:
@@ -208,7 +211,7 @@ class ConnectionAPI(Resource):
 
 			path = create_path(self.root, 'Fabrics/{0}/Connections/{1}').format(FabricId, ConnectionId)
 			base_path = create_path(self.root, 'Fabrics/{0}/Connections').format(FabricId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

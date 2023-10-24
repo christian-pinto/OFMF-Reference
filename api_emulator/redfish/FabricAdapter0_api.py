@@ -181,7 +181,7 @@ class FabricAdapter0API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Systems/{0}/FabricAdapters/{1}').format(SystemId, FabricAdapterId)
 			base_path = create_path(self.root, 'Systems/{0}/FabricAdapters').format(SystemId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

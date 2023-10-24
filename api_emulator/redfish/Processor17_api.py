@@ -181,7 +181,7 @@ class Processor17API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Chassis/{0}/NetworkAdapters/{1}/Processors/{2}/SubProcessors/{22}/SubProcessors/{23}').format(ChassisId, NetworkAdapterId, ProcessorId, ProcessorId2, ProcessorId3)
 			base_path = create_path(self.root, 'Chassis/{0}/NetworkAdapters/{1}/Processors/{2}/SubProcessors/{22}/SubProcessors').format(ChassisId, NetworkAdapterId, ProcessorId, ProcessorId2)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

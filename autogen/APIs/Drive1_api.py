@@ -181,7 +181,7 @@ class Drive1API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Chassis/{0}/Drives/{1}').format(ChassisId, DriveId)
 			base_path = create_path(self.root, 'Chassis/{0}/Drives').format(ChassisId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

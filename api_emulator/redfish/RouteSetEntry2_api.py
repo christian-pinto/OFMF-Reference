@@ -181,7 +181,7 @@ class RouteSetEntry2API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Chassis/{0}/FabricAdapters/{1}/Ports/{2}/MPRT/{3}/RouteSet/{4}').format(ChassisId, FabricAdapterId, PortId, MPRTId, RouteId)
 			base_path = create_path(self.root, 'Chassis/{0}/FabricAdapters/{1}/Ports/{2}/MPRT/{3}/RouteSet').format(ChassisId, FabricAdapterId, PortId, MPRTId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

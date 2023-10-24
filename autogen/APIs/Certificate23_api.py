@@ -181,7 +181,7 @@ class Certificate23API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'CompositionService/ResourceBlocks/{0}/Systems/{1}/Memory/{2}/Certificates/{3}').format(ResourceBlockId, ComputerSystemId, MemoryId, CertificateId)
 			base_path = create_path(self.root, 'CompositionService/ResourceBlocks/{0}/Systems/{1}/Memory/{2}/Certificates').format(ResourceBlockId, ComputerSystemId, MemoryId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

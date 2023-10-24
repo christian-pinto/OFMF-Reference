@@ -181,7 +181,7 @@ class StoragePool14API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Systems/{0}/Storage/{1}/StoragePools/{2}/CapacitySources/{3}/ProvidingPools/{4}').format(ComputerSystemId, StorageId, StoragePoolId, CapacitySourceId, ProvidingPoolId)
 			base_path = create_path(self.root, 'Systems/{0}/Storage/{1}/StoragePools/{2}/CapacitySources/{3}/ProvidingPools').format(ComputerSystemId, StorageId, StoragePoolId, CapacitySourceId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

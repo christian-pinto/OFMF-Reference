@@ -181,7 +181,7 @@ class LogEntry7API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Systems/{0}/Memory/{1}/DeviceLog/Entries/{2}').format(ComputerSystemId, MemoryId, LogEntryId)
 			base_path = create_path(self.root, 'Systems/{0}/Memory/{1}/DeviceLog/Entries').format(ComputerSystemId, MemoryId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

@@ -181,7 +181,7 @@ class Processor5API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'CompositionService/ResourceBlocks/{0}/Processors/{1}/SubProcessors/{12}/SubProcessors/{13}').format(ResourceBlockId, ProcessorId, ProcessorId2, ProcessorId3)
 			base_path = create_path(self.root, 'CompositionService/ResourceBlocks/{0}/Processors/{1}/SubProcessors/{12}/SubProcessors').format(ResourceBlockId, ProcessorId, ProcessorId2)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

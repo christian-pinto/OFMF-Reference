@@ -181,7 +181,7 @@ class VLanNetworkInterface2API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Systems/{0}/EthernetInterfaces/{1}/VLANs/{2}').format(ComputerSystemId, EthernetInterfaceId, VLanNetworkInterfaceId)
 			base_path = create_path(self.root, 'Systems/{0}/EthernetInterfaces/{1}/VLANs').format(ComputerSystemId, EthernetInterfaceId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

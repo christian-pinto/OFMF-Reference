@@ -181,7 +181,7 @@ class Certificate7API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Managers/{0}/RemoteAccountService/ExternalAccountProviders/{1}/Certificates/{2}').format(ManagerId, ExternalAccountProviderId, CertificateId)
 			base_path = create_path(self.root, 'Managers/{0}/RemoteAccountService/ExternalAccountProviders/{1}/Certificates').format(ManagerId, ExternalAccountProviderId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

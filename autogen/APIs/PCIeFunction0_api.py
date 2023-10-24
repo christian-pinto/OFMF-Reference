@@ -181,7 +181,7 @@ class PCIeFunction0API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Chassis/{0}/PCIeDevices/{1}/PCIeFunctions/{2}').format(ChassisId, PCIeDeviceId, PCIeFunctionId)
 			base_path = create_path(self.root, 'Chassis/{0}/PCIeDevices/{1}/PCIeFunctions').format(ChassisId, PCIeDeviceId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

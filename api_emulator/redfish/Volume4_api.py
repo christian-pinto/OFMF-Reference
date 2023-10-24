@@ -181,7 +181,7 @@ class Volume4API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Storage/{0}/ConsistencyGroups/{1}/Volumes/{2}').format(StorageId, ConsistencyGroupId, VolumeId)
 			base_path = create_path(self.root, 'Storage/{0}/ConsistencyGroups/{1}/Volumes').format(StorageId, ConsistencyGroupId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

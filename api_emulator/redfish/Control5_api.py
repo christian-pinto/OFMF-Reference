@@ -181,7 +181,7 @@ class Control5API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'PowerEquipment/PowerShelves/{0}/Controls/{1}').format(PowerDistributionId, ControlId)
 			base_path = create_path(self.root, 'PowerEquipment/PowerShelves/{0}/Controls').format(PowerDistributionId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

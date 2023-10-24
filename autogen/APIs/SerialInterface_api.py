@@ -181,7 +181,7 @@ class SerialInterfaceAPI(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Managers/{0}/SerialInterfaces/{1}').format(ManagerId, SerialInterfaceId)
 			base_path = create_path(self.root, 'Managers/{0}/SerialInterfaces').format(ManagerId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

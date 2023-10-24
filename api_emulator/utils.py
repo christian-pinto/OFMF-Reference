@@ -225,7 +225,7 @@ def create_and_patch_object (config, members, member_ids, path, collection_path,
 
     return config
 
-def delete_object (path, base_path):
+def delete_object(path, base_path, members=None, member_ids=None):
 
     delPath = path.replace(PATHS['Root'],'/redfish/v1/').replace("\\","/")
     path2 = create_path(base_path, 'index.json').replace("\\","/")
@@ -247,6 +247,13 @@ def delete_object (path, base_path):
         logging.debug(f"Data to be removed: {data}")
         pdata['Members'].remove(data)
         pdata['Members@odata.count'] = int(pdata['Members@odata.count']) - 1
+
+        logging.debug("Utils delete pData:")
+        logging.debug(json.dumps(pdata, indent=2))
+        if members and member_ids:
+            object_index = member_ids.index(object_id)
+            member_ids.pop(object_index)
+            members.pop(object_index)
 
         with open(path2,"w") as jdata:
             json.dump(pdata, jdata, indent=4, sort_keys=True)
