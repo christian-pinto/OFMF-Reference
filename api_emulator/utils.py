@@ -137,7 +137,7 @@ def update_collections_json(path, link):
 
     # Write the updated json to file.
     with open(path, 'w') as file_json:
-        json.dump(data, file_json)
+        json.dump(data, file_json, indent = 4)
 
 def update_collections_parent_json(path, type, link):
     '''
@@ -191,10 +191,11 @@ def create_object (config, members, member_ids, path, agent = None):
         }
         if "oem" not in config:
             config["oem"] = {}
-        config["oem"]["Sunfish_RM"] = oem
+        if "Sunfish_RM" not in config["oem"]:
+            config["oem"]["Sunfish_RM"] = oem
 
     members.append(config)
-    member_ids.append({'@odata.id': config['@odata.id']})
+    member_ids.append(config['@odata.id'].split("/")[-1])
 
     # Create instances of subordinate resources, then call put operation
     # not implemented yet
@@ -206,7 +207,7 @@ def create_object (config, members, member_ids, path, agent = None):
     with open(os.path.join(path, "index.json"), "w") as fd:
         fd.write(json.dumps(config, indent=4, sort_keys=True))
 
-def create_and_patch_object (config, members, member_ids, path, collection_path):
+def create_and_patch_object (config, members, member_ids, path, collection_path, agent=None):
 
     # If input body data, then update properties
     if request.data:
@@ -215,7 +216,7 @@ def create_and_patch_object (config, members, member_ids, path, collection_path)
         for key, value in request_data.items():
             config[key] = value
 
-    res = create_object(config,members,member_ids,path)
+    res = create_object(config,members,member_ids,path, agent)
     if res != None:
         return res
 
@@ -226,8 +227,10 @@ def create_and_patch_object (config, members, member_ids, path, collection_path)
 
 def delete_object (path, base_path):
 
-    delPath = path.replace(PATHS['Root'],'/redfish/v1').replace("\\","/")
+    delPath = path.replace(PATHS['Root'],'/redfish/v1/').replace("\\","/")
     path2 = create_path(base_path, 'index.json').replace("\\","/")
+    object_id = path.split('/')[-1]
+    logging.debug(f"path2: {path2}")
     try:
         with open(path2,"r") as pdata:
             pdata = json.load(pdata)
@@ -239,12 +242,14 @@ def delete_object (path, base_path):
         jdata = data["@odata.id"].split('/')
 
         path1 = os.path.join(base_path, jdata[len(jdata)-1])
+        logging.debug(f"path1: {path1}")
         shutil.rmtree(path1)
+        logging.debug(f"Data to be removed: {data}")
         pdata['Members'].remove(data)
         pdata['Members@odata.count'] = int(pdata['Members@odata.count']) - 1
 
         with open(path2,"w") as jdata:
-            json.dump(pdata,jdata, indent=4, sort_keys=True)
+            json.dump(pdata, jdata, indent=4, sort_keys=True)
 
     except Exception as e:
         return {"error": "Unable to read file because of the following error::{}".format(e)}, 404
@@ -331,6 +336,12 @@ def put_object(path):
         return {"error": "Unable to read file because of the following error:{}".format(e)}, 404
 
     return True
+
+def get_object(resource_path):
+    path = resource_path.replace("/redfish/v1", PATHS['Root'])
+    path = os.path.join(path, "index.json")
+    object = get_json_data(path)
+    return object
 
 def create_collection (collection_path, collection_type, parent_path):
 
