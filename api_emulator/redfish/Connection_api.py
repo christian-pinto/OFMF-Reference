@@ -34,6 +34,7 @@ import g
 import json, os, random, string
 import traceback
 import logging
+import api_emulator.agents_management as agents_management
 
 from flask import Flask, request
 from flask_restful import Resource
@@ -120,10 +121,11 @@ class ConnectionAPI(Resource):
 	# - Attach the APIs of subordinate resources (do this only once)
 	# - Finally, create an instance of the subordiante resources
 	def post(self, FabricId, ConnectionId):
-		logging.info('Connection post called')
+		logging.info(f'Connection post called - FabricId: {FabricId}, ConnectionId: {ConnectionId}')
 		msg, code = check_authentication(self.auth)
 
 		if code == 200:
+			config = {}
 			path = create_path(self.root, 'Fabrics/{0}/Connections/{1}').format(FabricId, ConnectionId)
 			collection_path = os.path.join(self.root, 'Fabrics/{0}/Connections', 'index.json').format(FabricId)
 
@@ -135,12 +137,29 @@ class ConnectionAPI(Resource):
 				resp = 404
 				return resp
 			try:
-				global config
-				wildcards = {'FabricId':FabricId, 'ConnectionId':ConnectionId, 'rb':g.rest_base}
-				config=get_Connection_instance(wildcards)
-				config = create_and_patch_object (config, members, member_ids, path, collection_path)
-				resp = config, 200
+				logging.debug("ConnectionAPI POST - request payload")
+				logging.debug(json.dumps(request.json, indent=2))
+				if not request.data:
+					return "Request payload missing", 400
 
+				# This piece checking for the agent should really be in the collection class, because that is where one
+				# would POST for creating an object. However, the actual resource is created in this method and this is
+				# where we need the agent id.
+				config = request.json
+				agent, response = agents_management.forwardToAgentIfManaged("POST", request.path, config)
+				if agent is not None and response[1] != 200:
+					logging.debug("Agent returned an error")
+					logging.debug(response)
+					# This is the case where the object is agent managed and there was an error on the agent side
+					# let's return the agent error code and message and stop here.
+					return response
+
+				logging.debug(f"Managing agent: {agent}")
+
+				wildcards = {'FabricId': FabricId, 'ConnectionId': ConnectionId, 'rb': g.rest_base}
+				config = get_Connection_instance(wildcards)
+				config = create_and_patch_object(config, members, member_ids, path, collection_path, agent)
+				resp = config, 200
 			except Exception:
 				traceback.print_exc()
 				resp = INTERNAL_ERROR
@@ -179,6 +198,14 @@ class ConnectionAPI(Resource):
 		msg, code = check_authentication(self.auth)
 
 		if code == 200:
+			agent, response = agents_management.forwardToAgentIfManaged("DELETE", request.path)
+			if agent is not None and response[1] != 200:
+				logging.debug("Agent returned an error")
+				logging.debug(response)
+				# This is the case where the object is agent managed and there was an error on the agent side
+				# let's return the agent error code and message and stop here.
+				return response
+
 			path = create_path(self.root, 'Fabrics/{0}/Connections/{1}').format(FabricId, ConnectionId)
 			base_path = create_path(self.root, 'Fabrics/{0}/Connections').format(FabricId)
 			return delete_object(path, base_path)
