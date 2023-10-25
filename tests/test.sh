@@ -7,8 +7,8 @@ echo "Script dir: $SCRIPT_DIR"
 cd ${SCRIPT_DIR}/..
 
 
-python emulator.py -p 5002 -redfish-path ./Resources/CXLAgent/ &
+python emulator.py -p 5002 -redfish-path ./Resources/CXLAgent/ > agent_logs 2>&1 &
 
 sleep 10
 
-python -m unittest discover -s tests
+python -m pytest tests/test.py -vvvv
