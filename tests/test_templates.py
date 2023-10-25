@@ -106,3 +106,22 @@ test_aggregation_source_event = {
   }
 }
 ]}
+
+test_fabric_event = {
+    "@odata.type": "#Event.v1_7_0.Event",
+    "Id": "1",
+    "Name": "Fabric Created",
+    "Context": "",
+    "Events": [ {
+        "EventType": "Other",
+        "EventId": "4595",
+        "Severity": "Ok",
+        "Message": "New Fabric Created ",
+        "MessageId": "Resource.1.0.ResourceCreated",
+        "MessageArgs": [],
+        "OriginOfCondition": {
+            "@odata.id": "/redfish/v1/Fabrics/CXL"
+        }
+    }
+    ]
+}
