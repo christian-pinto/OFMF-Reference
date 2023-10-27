@@ -1,3 +1,5 @@
+# Copyright (c) 2023 International Business Machines, Inc. All rights reserved.
+
 import json
 import api_emulator.utils as utils
 import requests

@@ -1,3 +1,5 @@
+# Copyright (c) 2023 International Business Machines, Inc. All rights reserved.
+
 from flask import request
 from flask_restful import Resource
 import api_emulator.redfish.constants as constants
