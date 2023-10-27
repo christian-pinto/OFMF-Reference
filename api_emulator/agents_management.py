@@ -2,6 +2,10 @@ import json
 import api_emulator.utils as utils
 import requests
 
+request_headers = {
+    'Content-Type': 'application/json'
+}
+
 # This function checks if an object is managed by a Sunfish agent and returns
 # the Agent @odata.id or None if the object is not managed by an Agent
 # We are assuming that the resource_path we receive is always that of a collection because according to the RedFish
@@ -9,8 +13,8 @@ import requests
 # method on resource collections."
 def isAgentManaged(resource_path):
     resource = utils.get_object(resource_path)
-    if "oem" in resource and "Sunfish_RM" in resource["oem"] and "ManagingAgent" in resource["oem"]["Sunfish_RM"]:
-        return resource["oem"]["Sunfish_RM"]["ManagingAgent"]["@odata.id"]
+    if "Oem" in resource and "Sunfish_RM" in resource["Oem"] and "ManagingAgent" in resource["Oem"]["Sunfish_RM"]:
+        return resource["Oem"]["Sunfish_RM"]["ManagingAgent"]["@odata.id"]
 
     return None
 
@@ -27,12 +31,19 @@ def requestToAgent(method, agent_id, resource_path, payload):
         if payload is None:
             # we only check if there is a payload and we assume that is correct
             raise Exception("Error: Missing payload")
-        headers = {
-            'Content-Type': 'application/json'
-        }
-        r = requests.post(resource_uri, headers=headers, data=json.dumps(payload))
+        r = requests.post(resource_uri, headers=request_headers, data=json.dumps(payload))
+    elif method == "PATCH":
+        if payload is None:
+            # we only check if there is a payload and we assume that is correct
+            raise Exception("Error: Missing payload")
+        r = requests.patch(resource_uri, headers=request_headers, data=json.dumps(payload))
     elif method == "DELETE":
         r = requests.delete(resource_uri)
+    elif method == "PUT":
+        if payload is None:
+            # we only check if there is a payload and we assume that is correct
+            raise Exception("Error: Missing payload")
+        r = requests.put(resource_uri, headers=request_headers, data=json.dumps(payload))
     else:
         raise Exception("Invalid method for requestToAgent")
 

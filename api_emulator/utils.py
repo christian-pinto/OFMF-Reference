@@ -177,7 +177,7 @@ def get_json_data(path):
     # return jsonify(data)
     return data
 
-def create_object (config, members, member_ids, path, agent = None):
+def create_object (config, members, member_ids, path, agent=None):
     # For POST Singleton API:
 
     if agent is not None:
@@ -189,13 +189,13 @@ def create_object (config, members, member_ids, path, agent = None):
                 "@odata.id": agent
             }
         }
-        if "oem" not in config:
-            config["oem"] = {}
-        if "Sunfish_RM" not in config["oem"]:
-            config["oem"]["Sunfish_RM"] = oem
+        if "Oem" not in config:
+            config["Oem"] = {}
+        if "Sunfish_RM" not in config["Oem"]:
+            config["Oem"]["Sunfish_RM"] = oem
 
     members.append(config)
-    member_ids.append(config['@odata.id'].split("/")[-1])
+    member_ids.append(config['@odata.id'])
 
     # Create instances of subordinate resources, then call put operation
     # not implemented yet
@@ -227,9 +227,10 @@ def create_and_patch_object (config, members, member_ids, path, collection_path,
 
 def delete_object(path, base_path, members=None, member_ids=None):
 
-    delPath = path.replace(PATHS['Root'],'/redfish/v1/').replace("\\","/")
-    path2 = create_path(base_path, 'index.json').replace("\\","/")
-    object_id = path.split('/')[-1]
+    delPath = path.replace(PATHS['Root'],'/redfish/v1/').replace("//","/")
+    path2 = create_path(base_path, 'index.json').replace("//","/")
+    logging.debug(f"Object path: {path}")
+    object_id = delPath
     logging.debug(f"path2: {path2}")
     try:
         with open(path2,"r") as pdata:
@@ -252,11 +253,14 @@ def delete_object(path, base_path, members=None, member_ids=None):
         logging.debug(json.dumps(pdata, indent=2))
         if members and member_ids:
             object_index = member_ids.index(object_id)
+            logging.debug(f"Object index in members: {object_index}")
             member_ids.pop(object_index)
             members.pop(object_index)
 
         with open(path2,"w") as jdata:
             json.dump(pdata, jdata, indent=4, sort_keys=True)
+
+        logging.debug("Data dumped")
 
     except Exception as e:
         return {"error": "Unable to read file because of the following error::{}".format(e)}, 404
@@ -309,7 +313,7 @@ def patch_object(path):
 
         # Write the updated json to file.
         with open(path, 'w') as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=4)
             f.close()
 
     except Exception as e:
@@ -317,26 +321,40 @@ def patch_object(path):
 
     return 200
 
-def put_object(path):
+def put_object(path, agent=None):
     if not os.path.exists(path):
         return {"error": "The requested object does not exist.:{}"}, 404
     try:
+        config = request.json
+        if agent is not None:
+            # This means this object is being created in response to a new object being advertised by an agent
+            # We mark the boject as belonging to an agent through the oem field.
+            oem = {
+                "@odata.type": "#SunfishExtensions.v1_0_0.ResourceExtensions",
+                "ManagingAgent": {
+                    "@odata.id": agent
+                }
+            }
+            if "Oem" not in config:
+                config["Oem"] = {}
+            if "Sunfish_RM" not in config["Oem"]:
+                config["Oem"]["Sunfish_RM"] = oem
     # Read json from file.
     #    with open(path, 'r') as data_json:
     #        data = json.load(data_json)
     #        data_json.close()
-        data = {}
-        path = path.replace("\\","/")
-        # If input body data, then update properties
-        if request.data:
-            request_data = json.loads(request.data)
-            # Update the keys of payload in json file.
-            for key, value in request_data.items():
-                data[key] = value
+    #     data = {}
+    #     path = path.replace("\\","/")
+    #     # If input body data, then update properties
+    #     if request.data:
+    #         request_data = json.loads(request.data)
+    #         # Update the keys of payload in json file.
+    #         for key, value in request_data.items():
+    #             data[key] = value
 
         # Write the updated json to file.
         with open(path, 'w') as f:
-            json.dump(data, f)
+            json.dump(config, f, indent=4, sort_keys=True)
             f.close()
 
     except Exception as e:
