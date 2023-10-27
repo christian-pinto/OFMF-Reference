@@ -9,7 +9,45 @@ import g
 REST_BASE = '/redfish/v1/'
 g.rest_base = REST_BASE
 
-class TestOFMF():
+request_headers = {
+    'Content-Type': 'application/json'
+}
+
+test_objs_agent_fwd_post = [{"url": f"{REST_BASE}Fabrics/CXL/Connections",
+                             "payload": test_templates.fabric_connection},
+                            {"url": f"{REST_BASE}Systems/CXL-System/MemoryDomains/CXL/MemoryChunks",
+                             "payload": test_templates.memory_chunk},
+                            {"url": f"{REST_BASE}Chassis/CXL3/MemoryDomains/1/MemoryChunks",
+                             "payload": test_templates.memory_chunk},
+                            {"url": f"{REST_BASE}Fabrics/CXL/Zones",
+                             "payload": test_templates.zone}]
+
+
+test_objs_agent_fwd_put = [{"url": f"{REST_BASE}Fabrics/CXL/Connections/14",
+                            "payload": test_templates.fabric_connection},
+                           {"url": f"{REST_BASE}Systems/CXL-System/MemoryDomains/CXL/MemoryChunks/2",
+                            "payload": test_templates.memory_chunk},
+                           {"url": f"{REST_BASE}Chassis/CXL3/MemoryDomains/1/MemoryChunks/2",
+                            "payload": test_templates.memory_chunk},
+                           {"url": f"{REST_BASE}Fabrics/CXL/Zones/4",
+                            "payload": test_templates.zone}]
+
+test_objs_agent_fwd_patch = [{"url": f"{REST_BASE}Fabrics/CXL/Connections/14",
+                             "payload": test_templates.fabric_connection_patch},
+                             {"url": f"{REST_BASE}Systems/CXL-System/MemoryDomains/CXL/MemoryChunks/2",
+                             "payload": test_templates.memory_chunk_patch},
+                             {"url": f"{REST_BASE}Chassis/CXL3/MemoryDomains/1/MemoryChunks/2",
+                              "payload": test_templates.memory_chunk_patch},
+                             {"url": f"{REST_BASE}Fabrics/CXL/Zones/4",
+                              "payload": test_templates.zone_patch}]
+
+test_objs_agent_fwd_del = [{"url": f"{REST_BASE}Fabrics/CXL/Connections/14"},
+                           {"url": f"{REST_BASE}Systems/CXL-System/MemoryDomains/CXL/MemoryChunks/2"},
+                           {"url": f"{REST_BASE}Chassis/CXL3/MemoryDomains/1/MemoryChunks/2"},
+                           {"url": f"{REST_BASE}Fabrics/CXL/Zones/4"}]
+
+
+class TestOFMF:
     @classmethod
     def setup_class(cls):
         global resource_manager
@@ -17,7 +55,7 @@ class TestOFMF():
         global TRAYS
         global SPEC
 
-        PATHS['Root']= 'Resources/Sunfish'
+        PATHS['Root'] = 'Resources/Sunfish'
         resource_manager = ResourceManager(None, None, None, "Disable", None)
         g.app.testing = True
         cls.client = g.app.test_client()
@@ -43,7 +81,8 @@ class TestOFMF():
 
         assert status_code == 200
 
-        manager_name = test_templates.test_aggregation_source_event["Events"][0]["OriginOfCondition"]["@odata.id"].split('/')[-1]
+        manager_name = \
+        test_templates.test_aggregation_source_event["Events"][0]["OriginOfCondition"]["@odata.id"].split('/')[-1]
         conn_method = test_templates.test_aggregation_source_event["Events"][0]["OriginOfCondition"]
         aggr_source_url = f"{REST_BASE}AggregationService/AggregationSources"
         response = self.client.get(aggr_source_url)
@@ -52,16 +91,49 @@ class TestOFMF():
         aggr_source_collection = json.loads(response.data)
         aggr_source_found = False
         for aggr_source in aggr_source_collection['Members']:
-            aggr_source_endpoint=self.client.get(aggr_source['@odata.id'])
+            aggr_source_endpoint = self.client.get(aggr_source['@odata.id'])
             aggr_source_data = json.loads(aggr_source_endpoint.data)
             if conn_method == aggr_source_data['Links']['ConnectionMethod']:
-                aggr_source_found=True
+                aggr_source_found = True
 
         assert aggr_source_found
 
-    @pytest.mark.run(after="test_agent_registration")
+    @pytest.mark.order(after="test_agent_registration")
     def test_agent_registration_create_fabric(self):
         events_url = f"/EventListener"
         response = self.client.post(events_url, json=test_templates.test_fabric_event)
         status_code = response.status_code
         assert status_code == 200
+
+    @pytest.mark.order(after="test_agent_registration_create_fabric")
+    def test_agent_forward_post(self):
+        for item in test_objs_agent_fwd_post:
+            print(f"Testing POST for {item['url']}")
+            print(item['payload'])
+            item["payload"]["@odata.id"] = f"{item['url']}/{item['payload']['Id']}"
+            r = self.client.post(item["url"], headers=request_headers, data=json.dumps(item["payload"]))
+            assert r.status_code == 200
+
+    @pytest.mark.order(after="test_agent_forward_post")
+    def test_agent_forward_patch(self):
+        for item in test_objs_agent_fwd_patch:
+            print(f"Testing PATCH for {item['url']}")
+            r = self.client.patch(item["url"], headers=request_headers, data=json.dumps(item["payload"]))
+
+            print(r)
+            assert r.status_code == 200
+
+    @pytest.mark.order(after="test_agent_forward_patch")
+    def test_agent_forward_put(self):
+        for item in test_objs_agent_fwd_put:
+            print(f"Testing PUT for {item['url']}")
+            item["payload"]["@odata.id"] = item['url']
+            r = self.client.put(item["url"], headers=request_headers, data=json.dumps(item["payload"]))
+            assert r.status_code == 200
+
+    @pytest.mark.order(after="test_agent_forward_put")
+    def test_agent_forward_delete(self):
+        for item in test_objs_agent_fwd_del:
+            print(f"Testing DELETE for {item['url']}")
+            r = self.client.delete(item["url"])
+            assert r.status_code == 200

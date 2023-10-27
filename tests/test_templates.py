@@ -125,3 +125,92 @@ test_fabric_event = {
     }
     ]
 }
+
+fabric_connection = {
+    "@odata.id": "/redfish/v1/Fabrics/CXL/Connections/14",
+    "@odata.type": "#Connection.v1_1_0.Connection",
+    "ConnectionType": "Memory",
+    "Description": "CXL Connection 14 Information",
+    "Id": "14",
+    "Name": "Connection 14",
+    "Status": {
+        "Health": "OK",
+        "HealthRollup": "OK",
+        "State": "Enabled"
+    }
+}
+
+fabric_connection_patch = {
+    "Links": {
+        "InitiatorEndpoints": [
+            {
+                "@odata.id": "/redfish/v1/Fabrics/CXL/Endpoints/I2"
+            }
+        ],
+        "TargetEndpoints": [
+            {
+                "@odata.id": "/redfish/v1/Fabrics/CXL/Endpoints/T2"
+            }
+        ]
+    }
+}
+
+memory_chunk = {
+    "@odata.type": "#MemoryChunks.v1_5_0.MemoryChunks",
+    "@odata.id": "/redfish/v1/Chassis/CXL3/MemoryDomains/1/MemoryChunks/2",
+    "Id": "2",
+    "Name": "Memory Chunk 2",
+    "Description": "Memory chunk accessible through CXL",
+    "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+    },
+    "MemoryChunkSizeMiB": 1024,
+    "AddressRangeType": "PMEM",
+    "AddressRangeOffsetMiB": 2048,
+    "MediaLocation": "Local",
+    "OperationalState": "Online",
+    "Oem": {},
+    "@Redfish.Copyright": "Copyright 2014-2021 DMTF. For the full DMTF copyright policy, see http://www.dmtf.org/about/policies/copyright."
+}
+
+memory_chunk_patch = {
+    "Links": {
+        "CXLLogicalDevices": [
+            {
+                "@odata.id": "/redfish/v1/Chassis/CXL3/PCIeDevices/1/CXLLogicalDevices/1"
+            }
+        ]
+    }
+}
+
+zone = {
+    "@odata.type": "#Zone.v1_6_1.Zone",
+    "Id": "4",
+    "Name": "CXL Zone 4",
+    "Description": "CXL Zone 4",
+    "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+    },
+    "ZoneType": "ZoneOfEndpoints",
+    "Oem": {},
+    "@odata.id": "/redfish/v1/Fabrics/CXL/Zones/4",
+    "@Redfish.Copyright": "Copyright 2014-2021 DMTF. For the full DMTF copyright policy, see http://www.dmtf.org/about/policies/copyright."
+}
+
+zone_patch = {
+    "Links": {
+        "Endpoints": [
+            {
+                "@odata.id": "/redfish/v1/Fabrics/CXL/Endpoints/I1"
+            },
+            {
+                "@odata.id": "/redfish/v1/Fabrics/CXL/Endpoints/T1"
+            },
+            {
+                "@odata.id": "/redfish/v1/Fabrics/CXL/Endpoints/1"
+            }
+        ]
+    }
+}
