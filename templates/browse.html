@@ -15,13 +15,49 @@
             border: 0;
             margin: 0;
         }
+        header {
+            background-color: #dff3e8;
+            padding: 20px;
+            font-family: verdana;
+        }
+
+        /* Logo styles */
+        .logo {
+            width: 250px
+        }
+        .header {
+            font-size: 50px;
+            font-family: verdana;
+        }
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: left;
+        }
+        .code-container {
+            position: absolute;
+            top: 250px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: auto;
+        }
     </style>
 </head>
 <body>
-<div id="jsonpath" style="color:blue;font-family:monospace;font-weight:bold">
-    <span style="border: 1px solid blue; cursor:pointer">/redfish/v1/</span>
-</div>
-<div id="jsondata" style="display: inline-block"></div>
+    <header>
+        <div class="container">
+            <div><img src="{{url_for('static', filename='sunfish_logo_no_bg.png')}}" class="logo" ></div>
+            <div>&nbsp;</div>
+            <div class="header">Sunfish<br>OpenFabrics Alliance Management Framework</div>
+        </div>
+    </header>
+    <div class="code-container">
+        <div id="jsonpath" style="color:blue;font-family:monospace;font-weight:bold">
+            <span style="border: 1px solid blue; cursor:pointer">/redfish/v1/</span>
+        </div>
+        <div id="jsondata" style="display: inline-block"></div>
+    </div>
 <script type="text/javascript">
     regex=/\/redfish\/v1\/CompositionService\/ResourceBlocks\/[a-zA-Z0-9-_]+$/
     load({data:'/redfish/v1'});
@@ -38,6 +74,7 @@
     function showpath(path) {
         $('#jsonpath').text('');
         resturl='/redfish/v1';
+        $('#jsonpath').append('<br>')
         $('#jsonpath').append(make_clickable_span('/redfish/v1','/redfish/v1'));
         var path=path.split('/');
         for (var i=3;i<path.length;i++) {
@@ -103,6 +140,7 @@
             }
             $('#jsondata').append(line_i);
         }
+        $('#jsondata').append('<br>');
     }
 
     function do_delcompose(event) {
