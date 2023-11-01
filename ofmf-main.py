@@ -111,9 +111,9 @@ parser.add_argument('Action', type=str, required=True)
 #
 # If GET /, then return index.html (an intro page)
 #
-@g.app.route('/')
-def index():
-    return render_template('index.html')
+#@g.app.route('/')
+#def index():
+#    return render_template('index.html')
 
 ######################### End of BASE HTML page for RESTful interactions #######
 
@@ -123,7 +123,7 @@ def index():
 def serviceInfo():
     return json.loads(render_template('service.json'))
 
-@g.app.route('/browse.html')
+@g.app.route('/')
 def browse():
     return render_template('browse.html')
 

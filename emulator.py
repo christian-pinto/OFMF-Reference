@@ -441,15 +441,15 @@ def reset():
 #
 # If GET /, then return index.html (an intro page)
 #
-@g.app.route('/')
-def index():
-    return render_template('index.html')
+# @g.app.route('/')
+# def index():
+#     return render_template('index.html')
 
 @g.app.route('/redfish')
 def serviceInfo():
     return json.loads(render_template('service.json'))
 
-@g.app.route('/browse.html')
+@g.app.route('/')
 def browse():
     return render_template('browse.html')
 
