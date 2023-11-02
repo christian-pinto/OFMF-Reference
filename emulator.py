@@ -41,6 +41,8 @@ import argparse
 import traceback
 import logging
 import copy
+import sys
+import subprocess
 from urllib import response
 import flask_login
 import jwt
@@ -428,14 +430,30 @@ class RedfishAPI(Resource):
 #
 @g.app.route('/redfish/v1/reset/', methods=['DELETE'])
 def reset():
-    try:
-        init_resource_manager()
-        data = {'Message': 'Emulator reset successfully'}
-        resp = json.dumps(data, indent=4), 200
-    except Exception:
-        traceback.print_exc()
-        resp = error_response('Internal Server Error', 500, True)
-    return resp
+    subprocess.run("rm -rf Resources", check=True, shell=True)
+    subprocess.run("git checkout Resources", check=True, shell=True)
+    os.execlp(sys.executable, sys.executable, *sys.argv)
+
+# @g.app.route('/redfish/v1/reset/', methods=['OPTIONS'])
+# def options():
+#     print('options')
+#     data = {
+#         "headers": {
+#             "Access-Control-Allow-Origin": "*"
+#         }
+#     }
+#     return data, 400
+#
+
+    # try:
+    #     init_resource_manager()
+    #     data = {'Message': 'Emulator reset successfully'}
+    #     resp = json.dumps(data, indent=4), 200
+    # except Exception:
+    #     traceback.print_exc()
+    #     resp = error_response('Internal Server Error', 500, True)
+    # return resp
+
 
 
 #
