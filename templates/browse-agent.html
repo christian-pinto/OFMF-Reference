@@ -70,15 +70,8 @@
     regex=/\/redfish\/v1\/CompositionService\/ResourceBlocks\/[a-zA-Z0-9-_]+$/
     load({data:'/redfish/v1'});
 
-    function reset(){
-        $.ajax({
-            url: 'http://localhost:5000/redfish/v1/reset/',
-            type: 'DELETE',
-        });
-        $.ajax({
-            url: 'http://localhost:5002/redfish/v1/reset/',
-            type: 'DELETE',
-        });
+    function register(){
+        $.get('/redfish/v1/register-sunfish');
     }
 
     function load(event) {
@@ -174,6 +167,6 @@
     }
 
 </script>
-    <div><input type="image" src="{{url_for('static', filename='reset-button.png')}}" style="width: 5%;"  class="reset-btn" onclick="reset()"></div>
+    <div><input type="image" src="{{url_for('static', filename='register-button.png')}}" style="width: 5%;"  class="reset-btn" onclick="register()"></div>
 </body>
 </html>

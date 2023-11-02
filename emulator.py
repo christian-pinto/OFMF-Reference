@@ -65,6 +65,7 @@ from api_emulator.exceptions import CreatePooledNodeError, ConfigurationError, R
 from api_emulator.resource_dictionary import ResourceDictionary
 from api_emulator.redfish.ServiceRoot1_api import *
 from api_emulator.utils import *
+import agent_registration_templates
 
 # from infragen.populate import populate
 
@@ -434,6 +435,15 @@ def reset():
     subprocess.run("git checkout Resources", check=True, shell=True)
     os.execlp(sys.executable, sys.executable, *sys.argv)
 
+@g.app.route('/redfish/v1/register-sunfish', methods=['GET'])
+def registerSunfish():
+    sunfish_url = "http://sunfish.ofa.org:5000/EventListener"
+
+    requests.post(sunfish_url, data=json.dumps(agent_registration_templates.aggregation_source), headers=agent_registration_templates.headers)
+    requests.post(sunfish_url, data=json.dumps(agent_registration_templates.fabric), headers=agent_registration_templates.headers)
+
+    return "Agent registered", 200
+
 # @g.app.route('/redfish/v1/reset/', methods=['OPTIONS'])
 # def options():
 #     print('options')
@@ -469,7 +479,10 @@ def serviceInfo():
 
 @g.app.route('/')
 def browse():
-    return render_template('browse.html')
+    if g.agent:
+        return render_template('browse-agent.html')
+    else:
+        return render_template('browse.html')
 
 # Return metadata as type text/xml
 @g.app.route('/redfish/v1/$metadata')
@@ -632,6 +645,8 @@ def main():
                                 'be ran locally.')
     argparser.add_argument('-redfish-path', type=str, default=SUNFISH_TREE_PATH,
                            help='path to the local redfish tree directory')
+    argparser.add_argument('-agent', action='store_true', default=False,
+                           help='Start in agent mode')
     args = argparser.parse_args()
 
     PATHS['Root'] = args.redfish_path
@@ -651,6 +666,9 @@ def main():
 
         # if not args.debug:
         kwargs['host'] = '0.0.0.0'
+
+        if args.agent:
+            g.agent = True
 
         print (' * Running in', SPEC, 'mode')
         g.app.run(**kwargs)
