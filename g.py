@@ -10,7 +10,7 @@
 
 from flask import Flask
 from flask_restful import Api
-
+from flask_cors import CORS
 # Settings from emulator-config.json
 #
 staticfolders = []
@@ -20,6 +20,7 @@ rest_base = 'base'
 
 # Create Flask server
 app = Flask(__name__)
+CORS(app)
 
 app.config['SECRET_KEY'] = 'thisissecret'
 

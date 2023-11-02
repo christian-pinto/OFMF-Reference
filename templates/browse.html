@@ -41,6 +41,13 @@
             right: 0;
             bottom: 0;
             overflow: auto;
+            font-size: 14px;
+        }
+        .reset-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 16px;
+            justify-content: right;
         }
     </style>
 </head>
@@ -58,9 +65,22 @@
         </div>
         <div id="jsondata" style="display: inline-block"></div>
     </div>
+
 <script type="text/javascript">
     regex=/\/redfish\/v1\/CompositionService\/ResourceBlocks\/[a-zA-Z0-9-_]+$/
     load({data:'/redfish/v1'});
+
+    function reset(){
+        $.ajax({
+            url: 'http://localhost:5000/redfish/v1/reset/',
+            type: 'DELETE',
+        });
+        $.ajax({
+            url: 'http://localhost:5002/redfish/v1/reset/',
+            type: 'DELETE',
+        });
+    }
+
     function load(event) {
         url=event.data;
         showpath(url);
@@ -154,5 +174,7 @@
     }
 
 </script>
+    <div><input type="image" src="{{url_for('static', filename='reset-button.png')}}" style="width: 5%;"  class="reset-btn" onclick="reset()"></div>
+
 </body>
 </html>
