@@ -20,7 +20,10 @@ test_objs_agent_fwd_post = [{"url": f"{REST_BASE}Fabrics/CXL/Connections",
                             {"url": f"{REST_BASE}Chassis/CXL3/MemoryDomains/1/MemoryChunks",
                              "payload": test_templates.memory_chunk},
                             {"url": f"{REST_BASE}Fabrics/CXL/Zones",
-                             "payload": test_templates.zone}]
+                             "payload": test_templates.zone},
+                            {"url": f"{REST_BASE}Chassis/CXL3/PCIeDevices/1/CXLLogicalDevices",
+                             "payload": test_templates.cxl_logical_device}
+                            ]
 
 
 test_objs_agent_fwd_put = [{"url": f"{REST_BASE}Fabrics/CXL/Connections/14",
@@ -30,7 +33,9 @@ test_objs_agent_fwd_put = [{"url": f"{REST_BASE}Fabrics/CXL/Connections/14",
                            {"url": f"{REST_BASE}Chassis/CXL3/MemoryDomains/1/MemoryChunks/2",
                             "payload": test_templates.memory_chunk},
                            {"url": f"{REST_BASE}Fabrics/CXL/Zones/4",
-                            "payload": test_templates.zone}]
+                            "payload": test_templates.zone},
+                            {"url": f"{REST_BASE}Chassis/CXL3/PCIeDevices/1/CXLLogicalDevices/4",
+                             "payload": test_templates.cxl_logical_device}]
 
 test_objs_agent_fwd_patch = [{"url": f"{REST_BASE}Fabrics/CXL/Connections/14",
                              "payload": test_templates.fabric_connection_patch},
@@ -39,12 +44,15 @@ test_objs_agent_fwd_patch = [{"url": f"{REST_BASE}Fabrics/CXL/Connections/14",
                              {"url": f"{REST_BASE}Chassis/CXL3/MemoryDomains/1/MemoryChunks/2",
                               "payload": test_templates.memory_chunk_patch},
                              {"url": f"{REST_BASE}Fabrics/CXL/Zones/4",
-                              "payload": test_templates.zone_patch}]
+                              "payload": test_templates.zone_patch},
+                            {"url": f"{REST_BASE}Chassis/CXL3/PCIeDevices/1/CXLLogicalDevices/4",
+                             "payload": test_templates.cxl_logical_device_patch}]
 
 test_objs_agent_fwd_del = [{"url": f"{REST_BASE}Fabrics/CXL/Connections/14"},
                            {"url": f"{REST_BASE}Systems/CXL-System/MemoryDomains/CXL/MemoryChunks/2"},
                            {"url": f"{REST_BASE}Chassis/CXL3/MemoryDomains/1/MemoryChunks/2"},
-                           {"url": f"{REST_BASE}Fabrics/CXL/Zones/4"}]
+                           {"url": f"{REST_BASE}Fabrics/CXL/Zones/4"},
+                           {"url": f"{REST_BASE}Chassis/CXL3/PCIeDevices/1/CXLLogicalDevices/4"}]
 
 
 class TestOFMF:

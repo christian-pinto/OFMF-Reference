@@ -152,6 +152,7 @@ from api_emulator.redfish.Control2_api import *
 from api_emulator.redfish.Control3_api import *
 from api_emulator.redfish.Control4_api import *
 from api_emulator.redfish.Control5_api import *
+from api_emulator.redfish.CXLLogicalDevice import *
 from api_emulator.redfish.Drive0_api import *
 from api_emulator.redfish.Drive1_api import *
 from api_emulator.redfish.Drive2_api import *
@@ -1129,6 +1130,11 @@ class ResourceManager(object):
 
         g.api.add_resource(Control5CollectionAPI, '/redfish/v1/PowerEquipment/PowerShelves/<string:PowerDistributionId>/Controls', resource_class_kwargs={'auth': auth})
         g.api.add_resource(Control5API, '/redfish/v1/PowerEquipment/PowerShelves/<string:PowerDistributionId>/Controls/<string:ControlId>', resource_class_kwargs={'auth': auth})
+
+        g.api.add_resource(CXLLogicalDeviceCollectionAPI, '/redfish/v1/Chassis/<string:ChassisId>/PCIeDevices/<string:PCIeDeviceId>/CXLLogicalDevices',
+                           resource_class_kwargs={'auth': auth})
+        g.api.add_resource(CXLLogicalDeviceAPI, '/redfish/v1/Chassis/<string:ChassisId>/PCIeDevices/<string:PCIeDeviceId>/CXLLogicalDevices/<string:CXLLogicalDeviceId>',
+                           resource_class_kwargs={'auth': auth})
 
         g.api.add_resource(Drive0CollectionAPI, '/redfish/v1/Systems/<string:ComputerSystemId>/Storage/<string:StorageId>/Drives', resource_class_kwargs={'auth': auth})
         g.api.add_resource(Drive0API, '/redfish/v1/Systems/<string:ComputerSystemId>/Storage/<string:StorageId>/Drives/<string:DriveId>', resource_class_kwargs={'auth': auth})

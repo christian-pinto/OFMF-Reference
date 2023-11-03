@@ -214,3 +214,39 @@ zone_patch = {
         ]
     }
 }
+
+cxl_logical_device = {
+  "@odata.type":  "#CXLLogicalDevice.v1_0_0.CXLLogicalDevice",
+  "Id":  "4",
+  "Name":  "CXL Logical Device Type 1",
+  "Description":  "CXL Logical Device Type 1 attached through CXL fabric",
+  "Status":  {
+    "State":  "Enabled",
+    "Health":  "OK",
+    "HealthRollup":  "OK"
+  } ,
+  "Identifiers":[
+    {
+      "DurableName":"4C-1D-96-FF-FE-DD-D8-35:0001",
+      "DurableNameFormat": "GCXLID"
+    }
+  ],
+  "SemanticsSupported": [
+    "CXLio",
+    "CXLcache"
+  ],
+  "@odata.id":  "/redfish/v1/Chassis/CXL3/PCIeDevices/1/CXLLogicalDevices/4"
+}
+
+cxl_logical_device_patch = {
+  "Links":  {
+    "PCIeFunctions":  [
+      {
+        "@odata.id":  "/redfish/v1/Chassis/CXL3/PCIeDevices/1/PCIeFunctions" }
+    ],
+    "Endpoints":  [
+      {
+        "@odata.id":  "/redfish/v1/Fabrics/CXL/Endpoints/T1" }
+    ]
+  }
+}
