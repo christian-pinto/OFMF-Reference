@@ -33,7 +33,7 @@
 #  THE POSSIBILITY OF SUCH DAMAGE.
 #
 # utils.py
-
+import copy
 # Utilities used through out the library
 #   timestamp()
 #   process_id()
@@ -137,7 +137,7 @@ def update_collections_json(path, link):
 
     # Write the updated json to file.
     with open(path, 'w') as file_json:
-        json.dump(data, file_json, indent = 4)
+        json.dump(data, file_json, indent = 4, sort_keys=True)
 
 def update_collections_parent_json(path, type, link):
     '''
@@ -157,7 +157,7 @@ def update_collections_parent_json(path, type, link):
 
     # Write the updated json to file.
     with open(path, 'w') as file_json:
-        json.dump(data, file_json, indent=4)
+        json.dump(data, file_json, indent=4, sort_keys=True)
 
 def create_path(*args):
     trimmed = [str(arg).strip('/') for arg in args]
@@ -179,7 +179,7 @@ def get_json_data(path):
 
 def create_object (config, members, member_ids, path, agent=None):
     # For POST Singleton API:
-
+    config_to_write = copy.deepcopy(config)
     if agent is not None:
         # This means this object is being created in response to a new object being advertised by an agent
         # We mark the boject as belonging to an agent through the oem field.
@@ -189,13 +189,13 @@ def create_object (config, members, member_ids, path, agent=None):
                 "@odata.id": agent
             }
         }
-        if "Oem" not in config:
-            config["Oem"] = {}
-        if "Sunfish_RM" not in config["Oem"]:
-            config["Oem"]["Sunfish_RM"] = oem
+        if "Oem" not in config_to_write:
+            config_to_write["Oem"] = {}
+        if "Sunfish_RM" not in config_to_write["Oem"]:
+            config_to_write["Oem"]["Sunfish_RM"] = oem
 
-    members.append(config)
-    member_ids.append(config['@odata.id'])
+    members.append(config_to_write)
+    member_ids.append(config_to_write['@odata.id'])
 
     # Create instances of subordinate resources, then call put operation
     # not implemented yet
@@ -203,9 +203,9 @@ def create_object (config, members, member_ids, path, agent=None):
         os.mkdir(path)
     else:
         # This will execute when POST is called for more than one time for a resource
-        return config, 409
+        return "Resource existing, cannot POST to it !", 409
     with open(os.path.join(path, "index.json"), "w") as fd:
-        fd.write(json.dumps(config, indent=4, sort_keys=True))
+        fd.write(json.dumps(config_to_write, indent=4, sort_keys=True))
 
 def create_and_patch_object (config, members, member_ids, path, collection_path, agent=None):
 
@@ -250,7 +250,7 @@ def delete_object(path, base_path, members=None, member_ids=None):
         pdata['Members@odata.count'] = int(pdata['Members@odata.count']) - 1
 
         logging.debug("Utils delete pData:")
-        logging.debug(json.dumps(pdata, indent=2))
+        logging.debug(json.dumps(pdata, indent=2, sort_keys=True))
         if members and member_ids:
             object_index = member_ids.index(object_id)
             logging.debug(f"Object index in members: {object_index}")
@@ -285,7 +285,7 @@ def delete_collection (path, base_path):
         shutil.rmtree(path1)
 
         with open(path2,"w") as jdata:
-            json.dump(pdata,jdata)
+            json.dump(pdata,jdata, sort_keys=True)
 
     except Exception as e:
         return {"error": "Unable to read file because of the following error::{}".format(e)}, 404
@@ -313,7 +313,7 @@ def patch_object(path):
 
         # Write the updated json to file.
         with open(path, 'w') as f:
-            json.dump(data, f, indent=4)
+            json.dump(data, f, indent=4, sort_keys=True)
             f.close()
 
     except Exception as e:

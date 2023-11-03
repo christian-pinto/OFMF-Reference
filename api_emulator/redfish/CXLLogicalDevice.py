@@ -13,6 +13,7 @@ from flask_restful import Resource
 from .constants import *
 from api_emulator.utils import check_authentication, create_path, get_json_data, create_and_patch_object, delete_object, patch_object, put_object, create_collection
 from .templates.CXLLogicalDevice import get_CXLLogicalDevice_instance
+import api_emulator.agents_management as agents_management
 
 members = []
 member_ids = []
@@ -96,23 +97,41 @@ class CXLLogicalDeviceAPI(Resource):
 	def post(self, ChassisId, PCIeDeviceId, CXLLogicalDeviceId):
 		logging.info('CXLLogicalDevice post called')
 		msg, code = check_authentication(self.auth)
+		full_id = f"/redfish/v1/Chassis/{ChassisId}/PCIeDevices/{PCIeDeviceId}/CXLLogicalDevices/{CXLLogicalDeviceId}"
 
 		if code == 200:
 			path = create_path(self.root, 'Chassis/{0}/PCIeDevices/{1}/CXLLogicalDevices/{2}').format(ChassisId, PCIeDeviceId, CXLLogicalDeviceId)
 			collection_path = os.path.join(self.root, 'Chassis/{0}/PCIeDevices/{1}/CXLLogicalDevices', 'index.json').format(ChassisId, PCIeDeviceId)
-
 			# Check if collection exists:
 			if not os.path.exists(collection_path):
 				CXLLogicalDeviceCollectionAPI.post(self, ChassisId, PCIeDeviceId)
 
-			if CXLLogicalDeviceId in members:
-				resp = 404
+			if full_id in member_ids:
+				resp = "Element Id already existing", 404
 				return resp
 			try:
-				global config
+				logging.debug("ConnectionAPI POST - request payload")
+				logging.debug(json.dumps(request.json, indent=2))
+				if not request.data:
+					return "Request payload missing", 400
+
+				# This piece checking for the agent should really be in the collection class, because that is where one
+				# would POST for creating an object. However, the actual resource is created in this method and this is
+				# where we need the agent id.
+				config = request.json
+				agent, response = agents_management.forwardToAgentIfManaged("POST", request.path, config=config)
+				if agent is not None and response[1] != 200:
+					logging.debug("Agent returned an error")
+					logging.debug(response)
+					# This is the case where the object is agent managed and there was an error on the agent side
+					# let's return the agent error code and message and stop here.
+					return response
+
+				logging.debug(f"Managing agent: {agent}")
+
 				wildcards = {'ChassisId': ChassisId, 'PCIeDeviceId': PCIeDeviceId, 'CXLLogicalDeviceId': CXLLogicalDeviceId, 'rb': g.rest_base}
 				config = get_CXLLogicalDevice_instance(wildcards)
-				config = create_and_patch_object (config, members, member_ids, path, collection_path)
+				config = create_and_patch_object (config, members, member_ids, path, collection_path, agent)
 				resp = config, 200
 
 			except Exception:
@@ -127,10 +146,22 @@ class CXLLogicalDeviceAPI(Resource):
 	def put(self, ChassisId, PCIeDeviceId, CXLLogicalDeviceId):
 		logging.info('CXLLogicalDevice put called')
 		msg, code = check_authentication(self.auth)
+		full_id = f"/redfish/v1/Chassis/{ChassisId}/PCIeDevices/{PCIeDeviceId}/CXLLogicalDevices/{CXLLogicalDeviceId}"
 
 		if code == 200:
+			if full_id not in member_ids:
+				return "Element not present.", 404
+
+			agent, response = agents_management.forwardToAgentIfManaged("PUT", request.path, config=request.json)
+			if agent is not None and response[1] != 200:
+				logging.debug("Agent returned an error")
+				logging.debug(response)
+				# This is the case where the object is agent managed and there was an error on the agent side
+				# let's return the agent error code and message and stop here.
+				return response
+
 			path = create_path(self.root, 'Chassis/{0}/PCIeDevices/{1}/CXLLogicalDevices/{2}').format(ChassisId, PCIeDeviceId, CXLLogicalDeviceId)
-			put_object(path)
+			put_object(path, agent)
 			return self.get(ChassisId, PCIeDeviceId, CXLLogicalDeviceId)
 		else:
 			return msg, code
@@ -139,8 +170,20 @@ class CXLLogicalDeviceAPI(Resource):
 	def patch(self, ChassisId, PCIeDeviceId, CXLLogicalDeviceId):
 		logging.info('CXLLogicalDevice patch called')
 		msg, code = check_authentication(self.auth)
+		full_id = f"/redfish/v1/Chassis/{ChassisId}/PCIeDevices/{PCIeDeviceId}/CXLLogicalDevices/{CXLLogicalDeviceId}"
 
 		if code == 200:
+			if full_id not in member_ids:
+				return "Element not present.", 404
+
+			agent, response = agents_management.forwardToAgentIfManaged("PATCH", request.path, config=request.json)
+			if agent is not None and response[1] != 200:
+				logging.debug("Agent returned an error")
+				logging.debug(response)
+				# This is the case where the object is agent managed and there was an error on the agent side
+				# let's return the agent error code and message and stop here.
+				return response
+
 			path = create_path(self.root, 'Chassis/{0}/PCIeDevices/{1}/CXLLogicalDevices/{2}').format(ChassisId, PCIeDeviceId, CXLLogicalDeviceId)
 			patch_object(path)
 			return self.get(ChassisId, PCIeDeviceId, CXLLogicalDeviceId)
@@ -151,8 +194,20 @@ class CXLLogicalDeviceAPI(Resource):
 	def delete(self, ChassisId, PCIeDeviceId, CXLLogicalDeviceId):
 		logging.info('CXLLogicalDevice delete called')
 		msg, code = check_authentication(self.auth)
+		full_id = f"/redfish/v1/Chassis/{ChassisId}/PCIeDevices/{PCIeDeviceId}/CXLLogicalDevices/{CXLLogicalDeviceId}"
 
 		if code == 200:
+			if full_id not in member_ids:
+				return "Element not present.", 404
+
+			agent, response = agents_management.forwardToAgentIfManaged("DELETE", request.path)
+			if agent is not None and response[1] != 200:
+				logging.debug("Agent returned an error")
+				logging.debug(response)
+				# This is the case where the object is agent managed and there was an error on the agent side
+				# let's return the agent error code and message and stop here.
+				return response
+
 			path = create_path(self.root, 'Chassis/{0}/PCIeDevices/{1}/CXLLogicalDevices/{2}').format(ChassisId, PCIeDeviceId, CXLLogicalDeviceId)
 			base_path = create_path(self.root, 'Chassis/{0}/PCIeDevices/{1}/CXLLogicalDevices').format(ChassisId, PCIeDeviceId)
 			return delete_object(path, base_path)
