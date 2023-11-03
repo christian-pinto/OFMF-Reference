@@ -239,6 +239,6 @@ class SessionAPI(Resource):
 
 			path = create_path(self.root, 'SessionService/Sessions/{0}').format(SessionId)
 			base_path = create_path(self.root, 'SessionService/Sessions')
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code

@@ -181,7 +181,7 @@ class VCATEntry0API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Fabrics/{0}/Switches/{1}/Ports/{2}/VCAT/{3}').format(FabricId, SwitchId, PortId, VCATEntryId)
 			base_path = create_path(self.root, 'Fabrics/{0}/Switches/{1}/Ports/{2}/VCAT').format(FabricId, SwitchId, PortId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

@@ -39,6 +39,7 @@ from flask import Flask, request
 from flask_restful import Resource
 from .constants import *
 from api_emulator.utils import check_authentication, create_path, get_json_data, create_and_patch_object, delete_object, patch_object, put_object, create_collection
+import api_emulator.agents_management as agents_management
 from .templates.MemoryChunks1 import get_MemoryChunks1_instance
 
 members = []
@@ -122,6 +123,7 @@ class MemoryChunks1API(Resource):
 	def post(self, ChassisId, MemoryDomainId, MemoryChunksId):
 		logging.info('MemoryChunks1 post called')
 		msg, code = check_authentication(self.auth)
+		full_id = f"/redfish/v1/Chassis/{ChassisId}/MemoryDomains/{MemoryDomainId}/MemoryChunks/{MemoryChunksId}"
 
 		if code == 200:
 			path = create_path(self.root, 'Chassis/{0}/MemoryDomains/{1}/MemoryChunks/{2}').format(ChassisId, MemoryDomainId, MemoryChunksId)
@@ -131,16 +133,35 @@ class MemoryChunks1API(Resource):
 			if not os.path.exists(collection_path):
 				MemoryChunks1CollectionAPI.post(self, ChassisId, MemoryDomainId)
 
-			if MemoryChunksId in members:
-				resp = 404
+			if full_id in member_ids:
+				resp = "Element Id already existing", 404
 				return resp
 			try:
 				global config
-				wildcards = {'ChassisId':ChassisId, 'MemoryDomainId':MemoryDomainId, 'MemoryChunksId':MemoryChunksId, 'rb':g.rest_base}
-				config=get_MemoryChunks1_instance(wildcards)
-				config = create_and_patch_object (config, members, member_ids, path, collection_path)
-				resp = config, 200
 
+				logging.debug("MemoryChunks1API POST - request payload")
+				logging.debug(json.dumps(request.json, indent=2))
+				if not request.data:
+					return "Request payload missing", 400
+
+				# This piece checking for the agent should really be in the collection class, because that is where one
+				# would POST for creating an object. However, the actual resource is created in this method and this is
+				# where we need the agent id.
+				config = request.json
+				agent, response = agents_management.forwardToAgentIfManaged("POST", request.path, config=config)
+				if agent is not None and response[1] != 200:
+					logging.debug("Agent returned an error")
+					logging.debug(response)
+					# This is the case where the object is agent managed and there was an error on the agent side
+					# let's return the agent error code and message and stop here.
+					return response
+
+				logging.debug(f"Managing agent: {agent}")
+
+				wildcards = {'ChassisId': ChassisId, 'MemoryDomainId': MemoryDomainId, 'MemoryChunksId': MemoryChunksId, 'rb': g.rest_base}
+				config = get_MemoryChunks1_instance(wildcards)
+				config = create_and_patch_object(config, members, member_ids, path, collection_path, agent)
+				resp = config, 200
 			except Exception:
 				traceback.print_exc()
 				resp = INTERNAL_ERROR
@@ -153,10 +174,22 @@ class MemoryChunks1API(Resource):
 	def put(self, ChassisId, MemoryDomainId, MemoryChunksId):
 		logging.info('MemoryChunks1 put called')
 		msg, code = check_authentication(self.auth)
+		full_id = f"/redfish/v1/Chassis/{ChassisId}/MemoryDomains/{MemoryDomainId}/MemoryChunks/{MemoryChunksId}"
 
 		if code == 200:
+			if full_id not in member_ids:
+				return "Element not present.", 404
+
+			agent, response = agents_management.forwardToAgentIfManaged("PUT", request.path, config=request.json)
+			if agent is not None and response[1] != 200:
+				logging.debug("Agent returned an error")
+				logging.debug(response)
+				# This is the case where the object is agent managed and there was an error on the agent side
+				# let's return the agent error code and message and stop here.
+				return response
+
 			path = os.path.join(self.root, 'Chassis/{0}/MemoryDomains/{1}/MemoryChunks/{2}', 'index.json').format(ChassisId, MemoryDomainId, MemoryChunksId)
-			put_object(path)
+			put_object(path, agent)
 			return self.get(ChassisId, MemoryDomainId, MemoryChunksId)
 		else:
 			return msg, code
@@ -165,8 +198,20 @@ class MemoryChunks1API(Resource):
 	def patch(self, ChassisId, MemoryDomainId, MemoryChunksId):
 		logging.info('MemoryChunks1 patch called')
 		msg, code = check_authentication(self.auth)
+		full_id = f"/redfish/v1/Chassis/{ChassisId}/MemoryDomains/{MemoryDomainId}/MemoryChunks/{MemoryChunksId}"
 
 		if code == 200:
+			if full_id not in member_ids:
+				return "Element not present.", 404
+
+			agent, response = agents_management.forwardToAgentIfManaged("PATCH", request.path, config=request.json)
+			if agent is not None and response[1] != 200:
+				logging.debug("Agent returned an error")
+				logging.debug(response)
+				# This is the case where the object is agent managed and there was an error on the agent side
+				# let's return the agent error code and message and stop here.
+				return response
+
 			path = os.path.join(self.root, 'Chassis/{0}/MemoryDomains/{1}/MemoryChunks/{2}', 'index.json').format(ChassisId, MemoryDomainId, MemoryChunksId)
 			patch_object(path)
 			return self.get(ChassisId, MemoryDomainId, MemoryChunksId)
@@ -177,11 +222,23 @@ class MemoryChunks1API(Resource):
 	def delete(self, ChassisId, MemoryDomainId, MemoryChunksId):
 		logging.info('MemoryChunks1 delete called')
 		msg, code = check_authentication(self.auth)
+		full_id = f"/redfish/v1/Chassis/{ChassisId}/MemoryDomains/{MemoryDomainId}/MemoryChunks/{MemoryChunksId}"
 
 		if code == 200:
+			if full_id not in member_ids:
+				return "Element not present.", 404
+
+			agent, response = agents_management.forwardToAgentIfManaged("DELETE", request.path)
+			if agent is not None and response[1] != 200:
+				logging.debug("Agent returned an error")
+				logging.debug(response)
+				# This is the case where the object is agent managed and there was an error on the agent side
+				# let's return the agent error code and message and stop here.
+				return response
+
 			path = create_path(self.root, 'Chassis/{0}/MemoryDomains/{1}/MemoryChunks/{2}').format(ChassisId, MemoryDomainId, MemoryChunksId)
 			base_path = create_path(self.root, 'Chassis/{0}/MemoryDomains/{1}/MemoryChunks').format(ChassisId, MemoryDomainId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

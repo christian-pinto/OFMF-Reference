@@ -348,7 +348,7 @@ def write_singleton_api(outfile, resource_num, collection_path, instance):
         outfile.write("\t\t\tbase_path = create_path(self.root, '{0}')\n".format(base_collection_path))
     else:
         outfile.write("\t\t\tbase_path = create_path(self.root, '{0}').format({1})\n".format(base_collection_path, base_arg_str))
-    outfile.write("\t\t\treturn delete_object(path, base_path)\n")
+    outfile.write("\t\t\treturn delete_object(path, base_path, members=members, member_ids=member_ids)\n")
     outfile.write("\t\telse:\n")
     outfile.write("\t\t\treturn msg, code\n")
     outfile.write('\n')

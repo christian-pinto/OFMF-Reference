@@ -181,7 +181,7 @@ class EthernetInterface1API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Systems/{0}/EthernetInterfaces/{1}').format(ComputerSystemId, EthernetInterfaceId)
 			base_path = create_path(self.root, 'Systems/{0}/EthernetInterfaces').format(ComputerSystemId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

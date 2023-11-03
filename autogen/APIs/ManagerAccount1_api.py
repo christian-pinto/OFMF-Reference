@@ -181,7 +181,7 @@ class ManagerAccount1API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Managers/{0}/RemoteAccountService/Accounts/{1}').format(ManagerId, ManagerAccountId)
 			base_path = create_path(self.root, 'Managers/{0}/RemoteAccountService/Accounts').format(ManagerId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

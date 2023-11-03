@@ -1,3 +1,5 @@
+# Copyright (c) 2023 International Business Machines, Inc. All rights reserved.
+
 from flask import request
 from flask_restful import Resource
 import api_emulator.redfish.constants as constants
@@ -44,16 +46,10 @@ def getAggregationSource():
         if resource in agsource['Links']['ResourcesAccessed']:
             return agsource
 
-def createResource(redfish_obj):
+def createResource(redfish_obj, aggregation_source):
     obj_path = getRelativePath(redfish_obj)
     file_path = create_path(constants.PATHS['Root'], obj_path)
-    create_object(redfish_obj, [], [], file_path)
-
-
-
-
-
-
+    create_object(redfish_obj, [], [], file_path, aggregation_source["@odata.id"])
 
 class EventProcessor(Resource):
     def __init__(self):
@@ -102,11 +98,11 @@ class EventProcessor(Resource):
                     handleNestedObject(val)
         return visited
 
-    def createInspectedObject(self,redfish_obj):
+    def createInspectedObject(self,redfish_obj, aggregation_source):
 
         obj_path = getRelativePath(redfish_obj)
         file_path = create_path(constants.PATHS['Root'], obj_path)
-        create_object(redfish_obj, [], [], file_path)
+        create_object(redfish_obj, [], [], file_path, aggregation_source["@odata.id"])
 
         if ("Fabric" in redfish_obj['@odata.type']
                 or "System" in redfish_obj['@odata.type']
@@ -130,7 +126,7 @@ class EventProcessor(Resource):
         if response.status_code == 200:
             redfish_obj = response.json()
 
-            EventProcessor.createInspectedObject(self,redfish_obj)
+            EventProcessor.createInspectedObject(self,redfish_obj, aggregation_source)
             if redfish_obj['@odata.id'] not in aggregation_source["Links"]["ResourcesAccessed"]:
                 aggregation_source["Links"]["ResourcesAccessed"].append(redfish_obj['@odata.id'])
             return redfish_obj
@@ -176,7 +172,7 @@ class EventProcessor(Resource):
 
             request.data = json.dumps(redfish_obj, indent=2).encode('utf-8')
             # Update ManagerCollection before fetching the resource subtree
-            createResource(redfish_obj)
+            createResource(redfish_obj, aggregation_source)
             EventProcessor.bfsInspection(self,redfish_obj,aggregation_source)
 
         request.data = json.dumps(aggregation_source)

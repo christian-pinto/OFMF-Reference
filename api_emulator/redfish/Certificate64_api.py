@@ -181,7 +181,7 @@ class Certificate64API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'CompositionService/ResourceBlocks/{0}/Systems/{1}/KeyManagement/KMIPCertificates/{2}').format(ResourceBlockId, ComputerSystemId, CertificateId)
 			base_path = create_path(self.root, 'CompositionService/ResourceBlocks/{0}/Systems/{1}/KeyManagement/KMIPCertificates').format(ResourceBlockId, ComputerSystemId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

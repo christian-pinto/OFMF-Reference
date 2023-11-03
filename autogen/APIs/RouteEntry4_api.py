@@ -181,7 +181,7 @@ class RouteEntry4API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Fabrics/{0}/Switches/{1}/Ports/{2}/LPRT/{3}').format(FabricId, SwitchId, PortId, LPRTId)
 			base_path = create_path(self.root, 'Fabrics/{0}/Switches/{1}/Ports/{2}/LPRT').format(FabricId, SwitchId, PortId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

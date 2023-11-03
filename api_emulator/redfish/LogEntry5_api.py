@@ -178,7 +178,7 @@ class LogEntry5API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'JobService/Log/Entries/{0}').format(LogEntryId)
 			base_path = create_path(self.root, 'JobService/Log/Entries')
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

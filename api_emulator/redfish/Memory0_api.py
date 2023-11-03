@@ -181,7 +181,7 @@ class Memory0API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Systems/{0}/Memory/{1}').format(ComputerSystemId, MemoryId)
 			base_path = create_path(self.root, 'Systems/{0}/Memory').format(ComputerSystemId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

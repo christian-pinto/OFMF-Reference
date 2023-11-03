@@ -181,7 +181,7 @@ class AllowDeny2API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'CompositionService/ResourceBlocks/{0}/NetworkInterfaces/{1}/NetworkDeviceFunctions{NetworkDeviceFunctionId}/AllowDeny/{3}').format(ResourceBlockId, NetworkInterfaceId, NetworkDeviceFunctionsNetworkDeviceFunctionId, AllowDenyId)
 			base_path = create_path(self.root, 'CompositionService/ResourceBlocks/{0}/NetworkInterfaces/{1}/NetworkDeviceFunctions{NetworkDeviceFunctionId}/AllowDeny').format(ResourceBlockId, NetworkInterfaceId, NetworkDeviceFunctionsNetworkDeviceFunctionId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

@@ -181,7 +181,7 @@ class MemoryChunks1API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Chassis/{0}/MemoryDomains/{1}/MemoryChunks/{2}').format(ChassisId, MemoryDomainId, MemoryChunksId)
 			base_path = create_path(self.root, 'Chassis/{0}/MemoryDomains/{1}/MemoryChunks').format(ChassisId, MemoryDomainId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

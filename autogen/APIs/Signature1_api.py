@@ -181,7 +181,7 @@ class Signature1API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'CompositionService/ResourceBlocks/{0}/Systems/{1}/SecureBoot/SecureBootDatabases/{2}/Signatures/{3}').format(ResourceBlockId, ComputerSystemId, DatabaseId, SignatureId)
 			base_path = create_path(self.root, 'CompositionService/ResourceBlocks/{0}/Systems/{1}/SecureBoot/SecureBootDatabases/{2}/Signatures').format(ResourceBlockId, ComputerSystemId, DatabaseId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

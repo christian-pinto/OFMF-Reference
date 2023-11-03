@@ -181,7 +181,7 @@ class OutletGroup3API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'PowerEquipment/ElectricalBuses/{0}/OutletGroups/{1}').format(PowerDistributionId, OutletGroupId)
 			base_path = create_path(self.root, 'PowerEquipment/ElectricalBuses/{0}/OutletGroups').format(PowerDistributionId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

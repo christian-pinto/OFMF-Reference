@@ -181,7 +181,7 @@ class AccelerationFunction4API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'ResourceBlocks/{0}/Systems/{1}/Processors/{2}/AccelerationFunctions/{3}').format(ResourceBlockId, ComputerSystemId, ProcessorId, AccelerationFunctionId)
 			base_path = create_path(self.root, 'ResourceBlocks/{0}/Systems/{1}/Processors/{2}/AccelerationFunctions').format(ResourceBlockId, ComputerSystemId, ProcessorId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

@@ -181,7 +181,7 @@ class Volume8API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Storage/{0}/Volumes/{1}').format(StorageId, VolumeId)
 			base_path = create_path(self.root, 'Storage/{0}/Volumes').format(StorageId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

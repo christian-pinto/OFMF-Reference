@@ -181,7 +181,7 @@ class Certificate43API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Fabrics/{0}/Switches/{1}/Certificates/{2}').format(FabricId, SwitchId, CertificateId)
 			base_path = create_path(self.root, 'Fabrics/{0}/Switches/{1}/Certificates').format(FabricId, SwitchId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

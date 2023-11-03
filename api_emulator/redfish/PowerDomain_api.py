@@ -181,7 +181,7 @@ class PowerDomainAPI(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Facilities/{0}/PowerDomains/{1}').format(FacilityId, PowerDomainId)
 			base_path = create_path(self.root, 'Facilities/{0}/PowerDomains').format(FacilityId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 

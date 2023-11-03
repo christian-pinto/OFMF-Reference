@@ -181,7 +181,7 @@ class Volume11API(Resource):
 		if code == 200:
 			path = create_path(self.root, 'Systems/{0}/Storage/{1}/StoragePools/{2}/AllocatedVolumes/{3}').format(ComputerSystemId, StorageId, StoragePoolId, VolumeId)
 			base_path = create_path(self.root, 'Systems/{0}/Storage/{1}/StoragePools/{2}/AllocatedVolumes').format(ComputerSystemId, StorageId, StoragePoolId)
-			return delete_object(path, base_path)
+			return delete_object(path, base_path, members=members, member_ids=member_ids)
 		else:
 			return msg, code
 
