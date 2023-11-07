@@ -160,7 +160,9 @@ def update_collections_parent_json(path, type, link):
         json.dump(data, file_json, indent=4, sort_keys=True)
 
 def create_path(*args):
-    trimmed = [str(arg).strip('/') for arg in args]
+    # we want to keep the leading '/' should the root be passed as an absolute path
+    trimmed = [args[0].rstrip('/')]
+    trimmed.extend([str(arg).strip('/') for arg in args[1:]])
     return os.path.join(*trimmed)
 
     # HTTP GET
