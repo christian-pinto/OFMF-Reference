@@ -9,7 +9,7 @@ aggregation_source = {
             "Severity": "Ok",
             "Message": "A aggregation source of connection method Redfish located at http://cxl01.ofa.org:5002 has been discovered.",
             "MessageId": "Foo.1.0.AggregationSourceDiscovered",
-            "MessageArgs": ["Redfish", "http://sunfish.ofa.org:5000"],
+            "MessageArgs": ["Redfish", "http://localhost:5002"],
             "OriginOfCondition": {
                 "@odata.id": "/redfish/v1/AggregationService/ConnectionMethods/CXL"
             }
