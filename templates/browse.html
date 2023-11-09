@@ -72,11 +72,11 @@
 
     function reset(){
         $.ajax({
-            url: 'http://sunfish.ofa.org:5000/redfish/v1/reset/',
+            url: 'http://localhost:5000/redfish/v1/reset/',
             type: 'DELETE',
         });
         $.ajax({
-            url: 'http://cxl-agent.ofa.org:5002/redfish/v1/reset/',
+            url: 'http://localhost:5002/redfish/v1/reset/',
             type: 'DELETE',
         });
     }
