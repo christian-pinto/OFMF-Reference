@@ -196,9 +196,10 @@ class ConnectionAPI(Resource):
 		logging.info('Connection patch called')
 		msg, code = check_authentication(self.auth)
 		full_id = f"/redfish/v1/Fabrics/{FabricId}/Connections/{ConnectionId}"
+		path = create_path(self.root, 'Fabrics/{0}/Connections/{1}', 'index.json').format(FabricId, ConnectionId)
 
 		if code == 200:
-			if full_id not in member_ids:
+			if not os.path.exists(path):
 				return "Element not present.", 404
 
 			agent, response = agents_management.forwardToAgentIfManaged("PATCH", request.path, config=request.json)
@@ -209,7 +210,6 @@ class ConnectionAPI(Resource):
 				# let's return the agent error code and message and stop here.
 				return response
 
-			path = create_path(self.root, 'Fabrics/{0}/Connections/{1}', 'index.json').format(FabricId, ConnectionId)
 			patch_object(path)
 			return self.get(FabricId, ConnectionId)
 		else:

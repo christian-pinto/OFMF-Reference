@@ -39,6 +39,7 @@ from flask import Flask, request
 from flask_restful import Resource
 from .constants import *
 from api_emulator.utils import check_authentication, create_path, get_json_data, create_and_patch_object, delete_object, patch_object, put_object, create_collection
+import api_emulator.agents_management as agents_management
 from .templates.Endpoint0 import get_Endpoint0_instance
 
 members = []
@@ -122,6 +123,7 @@ class Endpoint0API(Resource):
 	def post(self, FabricId, EndpointId):
 		logging.info('Endpoint0 post called')
 		msg, code = check_authentication(self.auth)
+		check_path = create_path(self.root, 'Fabrics/{0}/Endpoints/{1}', 'index.json').format(FabricId, EndpointId)
 
 		if code == 200:
 			path = create_path(self.root, 'Fabrics/{0}/Endpoints/{1}').format(FabricId, EndpointId)
@@ -131,14 +133,32 @@ class Endpoint0API(Resource):
 			if not os.path.exists(collection_path):
 				Endpoint0CollectionAPI.post(self, FabricId)
 
-			if EndpointId in members:
-				resp = 404
+			if os.path.exists(check_path):
+				resp = f"Element with Id {EndpointId} exists already", 404
 				return resp
 			try:
-				global config
+				logging.debug("EndpointAPI POST - request payload")
+				logging.debug(json.dumps(request.json, indent=2))
+				if not request.data:
+					return "Request payload missing", 400
+
+				# This piece checking for the agent should really be in the collection class, because that is where one
+				# would POST for creating an object. However, the actual resource is created in this method and this is
+				# where we need the agent id.
+				config = request.json
+				agent, response = agents_management.forwardToAgentIfManaged("POST", request.path, config=config)
+				if agent is not None and response[1] != 200:
+					logging.debug("Agent returned an error")
+					logging.debug(response)
+					# This is the case where the object is agent managed and there was an error on the agent side
+					# let's return the agent error code and message and stop here.
+					return response
+
+				logging.debug(f"Managing agent: {agent}")
+
 				wildcards = {'FabricId':FabricId, 'EndpointId':EndpointId, 'rb':g.rest_base}
 				config=get_Endpoint0_instance(wildcards)
-				config = create_and_patch_object (config, members, member_ids, path, collection_path)
+				config = create_and_patch_object (config, members, member_ids, path, collection_path, agent)
 				resp = config, 200
 
 			except Exception:
@@ -156,6 +176,17 @@ class Endpoint0API(Resource):
 
 		if code == 200:
 			path = create_path(self.root, 'Fabrics/{0}/Endpoints/{1}', 'index.json').format(FabricId, EndpointId)
+			if not os.path.exists(path):
+				return "Element does not exist", 404
+
+			agent, response = agents_management.forwardToAgentIfManaged("PUT", request.path, config=request.json)
+			if agent is not None and response[1] != 200:
+				logging.debug("Agent returned an error")
+				logging.debug(response)
+				# This is the case where the object is agent managed and there was an error on the agent side
+				# let's return the agent error code and message and stop here.
+				return response
+
 			put_object(path)
 			return self.get(FabricId, EndpointId)
 		else:
@@ -168,6 +199,17 @@ class Endpoint0API(Resource):
 
 		if code == 200:
 			path = create_path(self.root, 'Fabrics/{0}/Endpoints/{1}', 'index.json').format(FabricId, EndpointId)
+			if not os.path.exists(path):
+				return "Element does not exist", 404
+
+			agent, response = agents_management.forwardToAgentIfManaged("PATCH", request.path, config=request.json)
+			if agent is not None and response[1] != 200:
+				logging.debug("Agent returned an error")
+				logging.debug(response)
+				# This is the case where the object is agent managed and there was an error on the agent side
+				# let's return the agent error code and message and stop here.
+				return response
+
 			patch_object(path)
 			return self.get(FabricId, EndpointId)
 		else:
@@ -179,6 +221,15 @@ class Endpoint0API(Resource):
 		msg, code = check_authentication(self.auth)
 
 		if code == 200:
+			check_path = create_path(self.root, 'Fabrics/{0}/Endpoints/{1}', 'index.json').format(FabricId, EndpointId)
+			agent, response = agents_management.forwardToAgentIfManaged("DELETE", request.path)
+			if agent is not None and response[1] != 200:
+				logging.debug("Agent returned an error")
+				logging.debug(response)
+				# This is the case where the object is agent managed and there was an error on the agent side
+				# let's return the agent error code and message and stop here.
+				return response
+
 			path = create_path(self.root, 'Fabrics/{0}/Endpoints/{1}').format(FabricId, EndpointId)
 			base_path = create_path(self.root, 'Fabrics/{0}/Endpoints').format(FabricId)
 			return delete_object(path, base_path, members=members, member_ids=member_ids)
