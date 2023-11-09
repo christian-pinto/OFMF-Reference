@@ -431,8 +431,13 @@ class RedfishAPI(Resource):
 #
 @g.app.route('/redfish/v1/reset/', methods=['DELETE'])
 def reset():
-    subprocess.run("rm -rf Resources", check=True, shell=True)
-    subprocess.run("git checkout Resources", check=True, shell=True)
+    path_tokens = PATHS['Root'].split('/')
+    if PATHS['Root'][0] == '/':
+        path_tokens.insert(0, '/')
+    to_restore = path_tokens[-1]
+    cd_path = os.path.join(*path_tokens[:-1])
+    subprocess.run(f"rm -rf {PATHS['Root']}", check=True, shell=True)
+    subprocess.run(f"cd {cd_path} && git checkout {to_restore}", check=True, shell=True)
     os.execlp(sys.executable, sys.executable, *sys.argv)
 
 @g.app.route('/redfish/v1/register-sunfish', methods=['GET'])
