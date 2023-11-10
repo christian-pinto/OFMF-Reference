@@ -26,3 +26,4 @@ Werkzeug==2.3.7
 zipp==3.16.2
 pytest
 pytest-order
+flask-cors
