@@ -442,12 +442,23 @@ def reset():
 
 @g.app.route('/redfish/v1/register-sunfish', methods=['GET'])
 def registerSunfish():
-    sunfish_url = "http://sunfish.ofa.org:5000/EventListener"
+    sunfish_url = "http://localhost:5000/EventListener"
 
     requests.post(sunfish_url, data=json.dumps(agent_registration_templates.aggregation_source), headers=agent_registration_templates.headers)
     requests.post(sunfish_url, data=json.dumps(agent_registration_templates.fabric), headers=agent_registration_templates.headers)
 
     return "Agent registered", 200
+
+@g.app.route('/redfish/v1/createmchunk', methods=['GET'])
+def createMChunk():
+    subprocess.run(f"cd {g.demo_scripts} && ./new_chunk_mld.sh", check=True, shell=True)
+    return "All good", 200
+
+@g.app.route('/redfish/v1/reallocmdev', methods=['GET'])
+def reallocMDev():
+    subprocess.run(f"cd {g.demo_scripts} && ./reallocate_sld.sh", check=True, shell=True)
+    return "All good", 200
+
 
 # @g.app.route('/redfish/v1/reset/', methods=['OPTIONS'])
 # def options():
@@ -652,6 +663,8 @@ def main():
                            help='path to the local redfish tree directory')
     argparser.add_argument('-agent', action='store_true', default=False,
                            help='Start in agent mode')
+    argparser.add_argument('-demo-scripts-path', type=str, default="./",
+                           help='path to the Sunfish demo scripts')
     args = argparser.parse_args()
 
     PATHS['Root'] = args.redfish_path
@@ -674,6 +687,9 @@ def main():
 
         if args.agent:
             g.agent = True
+
+        if args.demo_scripts_path != "./":
+            g.demo_scripts = args.demo_scripts_path
 
         print (' * Running in', SPEC, 'mode')
         g.app.run(**kwargs)

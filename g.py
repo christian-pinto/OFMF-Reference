@@ -18,6 +18,7 @@ staticfolders = []
 # Base URI. Will get overwritten in emulator.py
 rest_base = 'base'
 agent = False
+demo_scripts = "./"
 # Create Flask server
 app = Flask(__name__)
 CORS(app)

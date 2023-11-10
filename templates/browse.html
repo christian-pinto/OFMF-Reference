@@ -49,6 +49,18 @@
             right: 16px;
             justify-content: right;
         }
+        .create-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 130px;
+            justify-content: right;
+        }
+        .realloc-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 260px;
+            justify-content: right;
+        }
     </style>
 </head>
 <body>
@@ -79,6 +91,14 @@
             url: 'http://localhost:5002/redfish/v1/reset/',
             type: 'DELETE',
         });
+    }
+
+    function create_mchunk() {
+        $.get('/redfish/v1/createmchunk');
+    }
+
+    function realloc_mdev() {
+        $.get('/redfish/v1/reallocmdev');
     }
 
     function load(event) {
@@ -174,6 +194,8 @@
     }
 
 </script>
-    <div><input type="image" src="{{url_for('static', filename='reset-button.png')}}" style="width: 5%;"  class="reset-btn" onclick="reset()"></div>
+    <div><input type="image" src="{{url_for('static', filename='reset-button.png')}}" style="width: 110px;"  class="reset-btn" onclick="reset()"></div>
+    <div><input type="image" src="{{url_for('static', filename='create.png')}}" style="width: 120px;"  class="create-btn" onclick="create_mchunk()"></div>
+    <div><input type="image" src="{{url_for('static', filename='re-allocate.png')}}" style="width: 110px;"  class="realloc-btn" onclick="realloc_mdev()"></div>
 </body>
 </html>
