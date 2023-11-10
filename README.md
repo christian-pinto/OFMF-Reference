@@ -106,3 +106,33 @@ curl http://localhost:5000/redfish/v1/
 Alternatively, users can use a browser to access http://localhost:5000/redfish/v1/ on the system where the emulator has been installed. If the emulator is working properly, the Redfish service root should be displayed on the browser.
 
 ----
+## Replicating the SC23 Demo setup
+
+Download the mockups at: https://github.com/OFMFWG/mockups
+
+All the below commands are to be executed from the folder where you have cloned the OFMF-Reference project project.
+
+Configure your virtual environment:
+
+```commandline
+$ ./setup.sh -v -n
+```
+Open one terminal for the server and one terminal for the agent. 
+In the server terminal run:
+```commandline
+$ source venv/bin/activate
+$ python emulator.py -p 5000 -redfish-path ./Resources/Sunfish \
+    -debug -demo-scripts-path path_to_mockups/mockups/sc23_testObjects/scripts
+```
+
+In the agent terminal run:
+```commandline
+$ source venv/bin/activate
+$ python emulator.py -p 5002 -redfish-path path_to_mockups/mockups/sc23-PoC -debug -agent
+```
+
+In both cases replace `path_to_mockups` with whatever path you have cloned the mockups into.
+
+Server and CXL agent are now running. Visit the below links to interact with the demo:
+- Server: http://localhost:5000
+- CXL Agent: http://localhost:5002
